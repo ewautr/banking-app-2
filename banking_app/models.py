@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 import uuid
 from django.db.models import Sum
+from django.db import transaction
 
 
 class Customer(models.Model):
@@ -57,6 +58,7 @@ class Ledger(models.Model):
         return f"{self.account} - {self.amount} {self.text} - {self.timestamp} - {self.transaction_id}"
 
     @classmethod
+    @transaction.atomic
     def transaction(cls, amount, debit_account, credit_account, text):
         id = uuid.uuid4() 
         # sender account 
@@ -69,6 +71,3 @@ class Ledger(models.Model):
         ledger = Ledger()
         ledger = cls(account=receiver_account, amount=amount, text=text, transaction_id=id)
         ledger.save()
-        
-        
-        
