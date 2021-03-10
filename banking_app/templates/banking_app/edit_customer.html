@@ -1,7 +1,7 @@
 {% extends 'banking_app/base.html' %} {% block content %}
 <h2>Edit Customer: {{ customer.user }}</h2>
 
-<form action={% url 'banking_app:editcustomer' customer_id=customer.pk %} method="POST">
+<form action={% url 'banking_app:edit_customer' customer_id=customer.pk %} method="POST">
     {% csrf_token %}
   <input type="text" name="user_name" id="user_name" placeholder="username" value={{ customer.user }}/>
   <input type="text" name="phone" id="phone" placeholder="phone"  value={{ customer.phone }}/>

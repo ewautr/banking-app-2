@@ -1,7 +1,7 @@
 {% extends 'banking_app/base.html' %} {% block content %}
 <h2>New Account</h2>
 
-<form action={% url 'banking_app:addaccount' %} method="POST">
+<form action={% url 'banking_app:add_account' %} method="POST">
     {% csrf_token %}
   
   <label for="customer">Select account owner</label>

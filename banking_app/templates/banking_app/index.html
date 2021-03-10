@@ -1,6 +1,5 @@
 {% extends 'banking_app/base.html' %} {% block content %}
-<h1>hi</h1>
-<!-- <ul>
+<ul>
   <h2>Your accounts:</h2>
   {% for account in accounts %}
   <ol>
@@ -14,8 +13,7 @@
       balance:
       <span style="font-size: 20px; font-weight: bold"
         >{{ account.balance }}</span
-      >
-      <a href="{% url 'banking_app:activity' account_id=account.pk %}"
+      ><a href="{% url 'banking_app:activity' account_id=account.pk %}"
         >view account activity</a
       ><a href="{% url 'banking_app:transfers' account_id=account.pk %}"
         >Make a transfer</a
@@ -24,5 +22,5 @@
     <hr />
   </ol>
   {% endfor %}
-</ul> -->
+</ul>
 {% endblock %}
