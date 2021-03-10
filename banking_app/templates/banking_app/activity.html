@@ -1,0 +1,15 @@
+{% extends 'banking_app/base.html' %} {% block content %}
+<h2>Account activity:</h2>
+<ol>
+  {% for activity in activities %}
+  <li style="display: flex; justify-content: space-between">
+    From account: <span style="font-weight: bold; font-size: 20px;">{{ activity.fromAccount.pk }}</span> 
+    To account: <span style="font-weight: bold; font-size: 20px;">{{ activity.toAccount.pk }}</span> 
+    Transfer title: <span style="font-weight: bold; font-size: 20px;">{{ activity.text }}</span>
+    Amount: <span style="font-weight: bold; font-size: 20px;">{% if activity.fromAccount.pk == account_id  %} - {% endif %}{{ activity.amount }}</span>
+  </li>
+  <hr />
+  {% endfor %} 
+</ol>
+<a href={% url 'banking_app:index' %}>go back</a>
+{% endblock %}
