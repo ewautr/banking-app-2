@@ -15,13 +15,13 @@ def index(request):
 
 # Customer view - account activity
 def activity(request, account_id):
-    activities = Ledger.objects.all()
+    activities = Ledger.objects.filter(account=account_id)
     context = {
         'activities': activities,
-        'account_id': account_id,
     }
     return render(request, 'banking_app/activity.html', context)
 
+# Customer view - transfering money
 def transfers(request, account_id):
     currentAccount = get_object_or_404(Account, pk=account_id)
     allAccounts = Account.objects.exclude(pk=account_id)
@@ -30,6 +30,13 @@ def transfers(request, account_id):
         'allAccounts': allAccounts
     }
     if request.method == 'POST':
+        amount = request.POST['amount']
+        debit_account = request.POST['fromAccount']
+        credit_account = request.POST['toAccount']
+        text = request.POST['text']
+
+        Ledger.transaction(int(amount), debit_account, credit_account, text)
+
         return redirect('banking_app:index')
     return render(request, 'banking_app/transfers.html', context)
 
