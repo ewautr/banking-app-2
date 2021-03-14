@@ -1,5 +1,6 @@
 from django.shortcuts import render, reverse
 from django.contrib.auth.models import User
+from banking_app.models import Customer
 from django.contrib.auth import authenticate, login as dj_login, logout as dj_logout
 from django.http import HttpResponseRedirect
 
@@ -11,7 +12,10 @@ def login(request):
       user = authenticate(request, username=request.POST['user'], password=request.POST['password'])
       if user:
             dj_login(request, user)
-            return HttpResponseRedirect(reverse('banking_app:index'))
+            if Customer.objects.filter(user=user).exists():
+                return HttpResponseRedirect(reverse('banking_app:index'))
+            else:
+                return HttpResponseRedirect(reverse('banking_app:employee'))
       else:
             context = {
                'error': 'Bad username or password.'

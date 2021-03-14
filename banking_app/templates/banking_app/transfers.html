@@ -1,6 +1,6 @@
 {% extends 'banking_app/base.html' %} {% block content %}
 <h2>Make a transfer</h2>
-<form actiion={% url 'banking_app:transfers' account_id=currentAccount.pk %} method="POST">
+<form action={% url 'banking_app:transfers' account_id=currentAccount.pk %} method="POST">
     {% csrf_token %}
     <label for="fromAccount">from</label>
     <input type="text" name="fromAccount" id="fromAccount" placeholder="from" value={{ currentAccount.pk }}>
@@ -13,5 +13,8 @@
     <input name="text" id="text" placeholder="text">
     <button type="submit">transfer</button>
 </form>
+{% if error %}
+      <p><strong style="color: red;">Transfer unsuccesfull due to: {{ error }}</strong></p>
+{% endif %}
 <a href={% url 'banking_app:index' %}>go back</a>
 {% endblock %} 

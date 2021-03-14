@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Ledger, Customer, Account
+from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -34,11 +35,88 @@ def transfers(request, account_id):
         debit_account = request.POST['fromAccount']
         credit_account = request.POST['toAccount']
         text = request.POST['text']
+        available_balance = currentAccount.balance
 
+        if available_balance >= int(amount):
+            Ledger.transaction(int(amount), debit_account, credit_account, text)
+            return redirect('banking_app:index')
+        else:
+            context = {
+                'currentAccount': currentAccount,
+                'allAccounts': allAccounts,
+                'error': 'insufficient funds'
+            }
+
+    return render(request, 'banking_app/transfers.html', context)
+
+# Customer view - taking a loan
+def add_loan(request, customer_id):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    customerAccounts = Account.objects.filter(customer=customer).filter(account_type='Bank Account')
+    context = {
+        'customer': customer,
+        'customerAccounts': customerAccounts
+    }
+    if request.method == 'POST':
+        # Create the account
+        account = Account()
+        account.customer = customer
+        account.account_type = 'Loan'
+        account.save()
+
+        # Make a ledger where we take 500 from the loan account and add 500 to the chosen account
+        amount = request.POST['amount']
+        debit_account = account.pk
+        credit_account = request.POST['toAccount']
+        text = request.POST['text']
         Ledger.transaction(int(amount), debit_account, credit_account, text)
 
         return redirect('banking_app:index')
-    return render(request, 'banking_app/transfers.html', context)
+
+    return render(request, 'banking_app/add_loan.html', context)
+
+# Customer view - paying off a loan
+def pay_loan(request, customer_id, account_id):
+    customer = get_object_or_404(Customer, pk=customer_id)
+    account = get_object_or_404(Account, pk=account_id)
+    customerAccounts = Account.objects.filter(customer=customer).filter(account_type='Bank Account')
+    context = {
+        'customer': customer,
+        'customerAccounts': customerAccounts,
+        'account': account
+    }
+    if request.method == 'POST':
+        amount = request.POST['amount']
+        debit_account = request.POST['fromAccount']
+        credit_account = account.pk
+        text = 'paying off my loan'
+
+        selectedAccount = get_object_or_404(Account, pk=debit_account)
+        available_balance = selectedAccount.balance
+
+        if available_balance >= int(amount) and int(amount) <= -account.balance:
+            Ledger.transaction(int(amount), debit_account, credit_account, text)
+            
+            if account.balance == 0:
+                account.delete()
+
+            return redirect('banking_app:index')
+        elif int(amount) > -account.balance:
+            context = {
+                'customer': customer,
+                'customerAccounts': customerAccounts,
+                'account': account,
+                'error': 'your loan in smaller than the amount you are sending'
+            }
+        else:
+            context = {
+                'customer': customer,
+                'customerAccounts': customerAccounts,
+                'account': account,
+                'error': 'insufficient funds'
+            }
+
+    return render(request, 'banking_app/pay_loan.html', context)
 
 # Employee view
 def employee(request):
